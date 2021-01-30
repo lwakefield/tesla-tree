@@ -1,0 +1,11 @@
+{
+  "name": "tesla_tree",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Lawrence Wakefield <lawrence@iamlawrence.me>",
+  "license": "MIT",
+  "dependencies": {
+    "@tonaljs/tonal": "^4.6.0",
+    "easymidi": "^2.0.1"
+  }
+}
