@@ -1,4 +1,5 @@
 tonal = require('@tonaljs/tonal')
+Tree  = require('./tree.js');
 
 function mkscale (scale) {
   let res = [];
@@ -21,62 +22,44 @@ function xmur3(str) {
   }
 }
 
-class Seq {
-  constructor ({ tonic, scale, range, length }) {
-    Object.assign(this, { tonic, range, length })
-    if (scale instanceof Array) {
-      this.scale = scale;
-    } else if (typeof scale === 'string') {
-      this.scale = mkscale(
-        tonal.Scale.get(`${tonic.replace(/\d+/, '')} ${scale}`).notes
-      );
-    } else {
-      throw new Error(`Unimplemented scale type: ${scale}`);
-    }
-    this.seed = null
-    this.rand = null;
-    this.notes = null
+function genseqs (patch) {
+  const {
+    tonic,
+    scalename,
+    range,
+    length,
+    seed,
+    mutation_branches,
+    mutation_amt
+  } = patch;
+  const rand = xmur3(seed);
+  const scale = mkscale(
+    tonal.Scale.get(`${tonic.replace(/\d+/, '')} ${scalename}`).notes
+  );
+
+  // base sequence
+  const base_seq = [tonic];
+  while (base_seq.length < length) {
+    const last = base_seq[base_seq.length - 1];
+    const dir = Math.round((rand() * range * 2) - range)
+    // TODO: clamp
+    const next_note_index = (scale.indexOf(last) + dir);
+    base_seq.push(scale[next_note_index]);
   }
-  init (seed) {
-    this.seed = seed;
-    this.rand = xmur3(seed);
-    const res = [this.tonic];
-    while (res.length < this.length) {
-      const last = res[res.length - 1];
-      const dir = Math.round((this.rand() * this.range * 2) - this.range)
+
+  const tree = Tree.mktree2(base_seq, mutation_branches, (seq) => {
+    const new_seq = [...seq];
+    for (let i = 0; i < mutation_amt; i++) {
+      const index = Math.floor(rand() * length);
+      const dir = Math.round((rand() * range * 2) - range);
       // TODO: clamp
-      const next_note_index = (this.scale.indexOf(last) + dir);
-      res.push(this.scale[next_note_index]);
+      const next_scale_index = scale.indexOf(seq[index]) + dir;
+      new_seq[index] = scale[next_scale_index];
     }
-    this.notes = res
-  }
-  clone () {
-    const res = new Seq({
-      tonic:  this.tonic,
-      scale:  this.scale,
-      range:  this.range,
-      length: this.length,
-    });
-    res.seed  =  this.seed;
-    res.rand  =  this.rand;
-    res.notes =  [ ...this.notes ];
-    return res;
-  }
-  mutate (num) {
-    const mutation = this.clone();
-    mutation.seed = null;
-    for (let i = 0; i < num; i++) {
-      const index = Math.floor(this.rand() * this.length);
-      const dir = Math.round((this.rand() * this.range * 2) - this.range);
-      // TODO: clamp
-      const next_scale_index = this.scale.indexOf(this.notes[index]) + dir;
-      mutation.notes[index] = this.scale[next_scale_index];
-    }
-    return mutation;
-  }
+    return new_seq;
+  });
+
+  return tree;
 }
 
-module.exports = Seq;
-
-// const scale = mkscale(tonal.Scale.get('c major').notes);
-// const seq = mkseq('C4', scale, 2, 8, 'hello');
+module.exports.genseqs = genseqs;
