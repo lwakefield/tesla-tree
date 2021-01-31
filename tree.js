@@ -1,6 +1,6 @@
 // tree will always be balanced and binary
 // seq should be an array of strings (notes)
-function mktree2 (seq, num_nodes, mutate_fn) {
+function mktree (seq, num_nodes, mutate_fn) {
   const tree = [ seq ];
   const to_mutate = [ seq ];
   for (let i = 1; i < num_nodes; i++) {
@@ -16,7 +16,7 @@ function mktree2 (seq, num_nodes, mutate_fn) {
 //        0
 //    1       2
 //  3   4   5   6
-function walker2 (tree) {
+function walker (tree) {
   let next = 0;
   let last = null;
   return () => {
@@ -40,4 +40,4 @@ function walker2 (tree) {
   };
 }
 
-module.exports = { mktree2, walker2 };
+module.exports = { mktree, walker };

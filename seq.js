@@ -47,7 +47,7 @@ function genseqs (patch) {
     base_seq.push(scale[next_note_index]);
   }
 
-  const tree = Tree.mktree2(base_seq, mutation_branches, (seq) => {
+  const tree = Tree.mktree(base_seq, mutation_branches, (seq) => {
     const new_seq = [...seq];
     for (let i = 0; i < mutation_amt; i++) {
       const index = Math.floor(rand() * length);

@@ -33,7 +33,7 @@ class World {
   }
   static update () {
     this.seq_tree = Seq.genseqs(this.patch);
-    this.walk = Tree.walker2(this.seq_tree);
+    this.walk = Tree.walker(this.seq_tree);
     this._curr_branch = this.walk();
   }
   static start () {
