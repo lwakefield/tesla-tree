@@ -32,26 +32,26 @@ function genseqs (patch) {
     mutation_branches,
     mutation_amt
   } = patch;
-  const rand = xmur3(seed);
+  const rand = xmur3(seed.value.toString(36));
   const scale = mkscale(
-    tonal.Scale.get(`${tonic.replace(/\d+/, '')} ${scalename}`).notes
+    tonal.Scale.get(`${tonic.value.replace(/\d+/, '')} ${scalename.value}`).notes
   );
 
   // base sequence
-  const base_seq = [tonic];
-  while (base_seq.length < length) {
+  const base_seq = [tonic.value];
+  while (base_seq.length < length.value) {
     const last = base_seq[base_seq.length - 1];
-    const dir = Math.round((rand() * range * 2) - range)
+    const dir = Math.round((rand() * range.value * 2) - range.value)
     // TODO: clamp
     const next_note_index = (scale.indexOf(last) + dir);
     base_seq.push(scale[next_note_index]);
   }
 
-  const tree = Tree.mktree(base_seq, mutation_branches, (seq) => {
+  const tree = Tree.mktree(base_seq, mutation_branches.value, (seq) => {
     const new_seq = [...seq];
-    for (let i = 0; i < mutation_amt; i++) {
-      const index = Math.floor(rand() * length);
-      const dir = Math.round((rand() * range * 2) - range);
+    for (let i = 0; i < mutation_amt.value; i++) {
+      const index = Math.floor(rand() * length.value);
+      const dir = Math.round((rand() * range.value * 2) - range.value);
       // TODO: clamp
       const next_scale_index = scale.indexOf(seq[index]) + dir;
       new_seq[index] = scale[next_scale_index];
@@ -62,4 +62,5 @@ function genseqs (patch) {
   return tree;
 }
 
+module.exports.mkscale = mkscale;
 module.exports.genseqs = genseqs;

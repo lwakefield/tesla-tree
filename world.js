@@ -4,18 +4,19 @@ const Synth   = require('./synth')
 const Seq     = require('./seq')
 const Tree    = require('./tree')
 const Clock   = require('./clock')
+const Param   = require('./param')
 
 class World {
   static init () {
     this.patch = {
-      tonic: 'C4',
-      scalename: 'minor',
-      range: 5,
-      length: 8,
-      seed: parseInt('hello', 36),
-      mutation_branches: 15,
-      mutation_amt: 2,
-      max_loop_count: 2,
+      tonic:             Param.choices('tonic', 'C4', Seq.mkscale(['A', 'Bb', 'B', 'C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#'])),
+      scalename:         Param.choices('scale', 'minor', tonal.Scale.names()),
+      range:             Param.num('range', 5, 0, 12, 1),
+      length:            Param.num('length', 8, 1, 32, 1),
+      seed:              Param.num('seed', parseInt('hello', 36), 0, 2**32, 1),
+      mutation_branches: Param.num('branches', 15, 1, 128, 1),
+      mutation_amt:      Param.num('mutations', 2, 1, 32, 1),
+      max_loop_count:    Param.num('loops', 2, 1, 32, 1),
     };
 
     this.update();
@@ -53,7 +54,7 @@ class World {
       this._loop_count += 1;
       this._curr_seq_pos = 0;
     }
-    if (this._loop_count > this.patch.max_loop_count) {
+    if (this._loop_count > this.patch.max_loop_count.value) {
       this._curr_branch = this.walk();
       this._loop_count = 1;
       // console.log(`starting next seq: ${this.curr_seq}`);
